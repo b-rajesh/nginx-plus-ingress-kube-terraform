@@ -1,0 +1,76 @@
+module "prometheus" {
+  source                 = "./modules/prometheus-grafana"
+  depends_on_nginx_plus  = [module.aks.host, module.aks.cluster_id, module.aks.cluster_node_pool_id]
+  load_config_file       = false
+  host                   = module.aks.host
+  token                  = ""
+  client_key             = base64decode(module.aks.client_key)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  client_certificate     = base64decode(module.aks.client_certificate)
+}
+
+module "api-deployment" {
+  source                 = "./modules/apis"
+  depends_on_nginx_plus  = [module.nginx-plus-ingress-deployment.lb_ip, module.aks.host, module.aks.cluster_id, module.aks.cluster_node_pool_id]
+  load_config_file       = false
+  host                   = module.aks.host
+  token                  = ""
+  client_key             = base64decode(module.aks.client_key)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  client_certificate     = base64decode(module.aks.client_certificate)
+
+  weather-api-image = var.weather-api-image
+  echo-api-image    = var.echo-api-image
+
+}
+
+locals {
+  external_loadbalancer = module.nginx-plus-ingress-deployment.lb_ip
+  grafana_dashboard_url = module.prometheus.lb_ip
+}
+
+module "nginx-plus-ingress-deployment" {
+  source                    = "./modules/nginx-plus"
+  depends_on_kube           = [module.aks.host, module.aks.cluster_id, module.aks.cluster_node_pool_id]
+  tls_crt                   = "${file("default.crt")}"
+  tls_key                   = "${file("default.key")}"
+  name_of_ingress_container = var.name_of_ingress_container
+  image                     = "${var.aks_ingress_controller_prefix}.azurecr.io/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
+
+  load_config_file       = false
+  host                   = module.aks.host
+  token                  = " "
+  client_key             = base64decode(module.aks.client_key)
+  cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  client_certificate     = base64decode(module.aks.client_certificate)
+
+
+}
+
+module "aks" {
+  depends_on_kic     = [module.kic.id]
+  source             = "./modules/aks"
+  location           = var.location
+  kubernetes_version = var.aks_kubernetes_version
+  //machine_type                          = var.machine_type
+
+  ingress_conroller_version     = var.ingress_conroller_version
+  ingress_controller_prefix     = var.aks_ingress_controller_prefix
+  ingress_controller_image_name = var.ingress_controller_image_name
+
+  prefix                            = var.prefix
+  default_node_pool_count           = var.default_node_pool_count
+  application_node_pool_count       = var.application_node_pool_count
+  vpc_cidr                          = var.vpc_cidr
+  vpc_subnet_cidr                   = var.vpc_subnet_cidr
+  system_node_label_identifier      = var.system_node_label_identifier
+  application_node_label_identifier = var.application_node_label_identifier
+  environment                       = var.environment
+}
+
+module "kic" {
+  source                        = "./modules/kic"
+  ingress_conroller_version     = var.ingress_conroller_version
+  ingress_controller_prefix     = "${var.aks_ingress_controller_prefix}.azurecr.io"
+  ingress_controller_image_name = var.ingress_controller_image_name
+}

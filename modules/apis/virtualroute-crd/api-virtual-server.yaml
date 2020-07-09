@@ -1,0 +1,69 @@
+# This CRD support for Terraform is still in beta - https://www.hashicorp.com/blog/deploy-any-resource-with-the-new-kubernetes-provider-for-hashicorp-terraform/ - hence we still stick to YAML execution through kubectl
+
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServer
+metadata:
+  name: weather-api-vs
+  namespace: nginx-plus-ingress-ns
+spec:
+  host: localhost
+  routes:
+  - path: /weather
+    route: microservice-namespace/weather-service-vsr
+  - path: /helloworld
+    route: microservice-namespace/echo-service-vsr
+---
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServerRoute
+metadata:
+  name: weather-service-vsr
+  namespace: microservice-namespace
+spec:
+  host: localhost
+  upstreams:
+  - name: weather-service-upstream 
+    service: weather-service
+    port: 3000
+    lb-method: round_robin
+    max-fails: 1
+    max-conns: 32
+    keepalive: 32
+    connect-timeout: 30s
+    read-timeout: 30s
+    send-timeout: 30s
+    next-upstream: "error timeout non_idempotent"
+    next-upstream-timeout: 5s
+    next-upstream-tries: 10
+    client-max-body-size: 1m
+  subroutes:
+  - path: /weather
+    action:
+      pass: weather-service-upstream 
+---
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServerRoute
+metadata:
+  name: echo-service-vsr
+  namespace: microservice-namespace
+spec:
+  host: localhost
+  upstreams:
+  - name: echo-service-upstream 
+    service: echo-service
+    port: 8080
+    lb-method: round_robin
+    max-fails: 1
+    max-conns: 32
+    keepalive: 32
+    connect-timeout: 30s
+    read-timeout: 30s
+    send-timeout: 30s
+    next-upstream: "error timeout non_idempotent"
+    next-upstream-timeout: 5s
+    next-upstream-tries: 10
+    client-max-body-size: 1m
+  subroutes:
+  - path: /helloworld
+    action:
+      pass: echo-service-upstream 
+---
