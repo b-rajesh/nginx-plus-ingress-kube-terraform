@@ -1,9 +1,10 @@
-# Pre-requsite 4 - To run locally
+# Pre-requsite  - To run locally
 
 [Go back to main page](../README.md)
 
 ```
-Install docker-desktop(latest)  locally and enable kubernetes cluster from the preferences. start the
+Install docker-desktop(latest)  locally and enable kubernetes cluster from the preferences. start the docker
+kubectl config use-context docker-desktop
 ```
 
 # Enable the local module
