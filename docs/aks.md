@@ -1,4 +1,6 @@
-# Pre-requsite  - format the file name
+# Pre-requsite  - Configure azure cli and enable the aks module
+
+
 [Go back to main page](../README.md)
 
 

@@ -1,6 +1,8 @@
-# Pre-requsite  - Install and configure GCloud & initialise [You don't need this step if you are running locally]
+# Pre-requsite  - Install and configure GCloud & initialise
 
 [Go back to main page](../README.md)
+
+
 # Enable the gke module
 Step 1
 ```
