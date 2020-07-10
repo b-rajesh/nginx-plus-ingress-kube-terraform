@@ -147,7 +147,7 @@ resource "null_resource" "attach-acr-to-aks" {
 */
 
 resource "azurerm_role_assignment" "acr-role-assignment" {
-  depends_on = [var.depends_on_kic, null_resource.push-image-to-acr]
+  depends_on = [var.depends_on_kic, null_resource.push-image-to-acr, azurerm_kubernetes_cluster_node_pool.aks-cluster-application-node-pool]
   scope              = azurerm_container_registry.nginx-ingress-acr.id
   role_definition_name = "AcrPull"
   principal_id       = data.azurerm_user_assigned_identity.principal.principal_id

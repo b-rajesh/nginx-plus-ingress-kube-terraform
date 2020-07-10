@@ -48,6 +48,23 @@ gcloud auth configure-docker
 
 * Do NOT use upper case for the value you are going to replace.
 ```
+# Components created
+```
+* GKE default node is deleted , one application node pool is created.
+* Uses GCR to upload the nginx plus image
+* Public load balancer
+```
+
+
+# Known challenges
+```
+You would be likely have an error while running terraform apply like
+---
+Error: clusterrolebindings.rbac.authorization.k8s.io is forbidden: User "<user>@<email>.com" cannot create resource "clusterrolebindings" in API group "rbac.authorization.k8s.io" at the cluster scope: requires one of ["container.clusterRoleBindings.create"] permission(s).
+---
+** If you are NOT an admin, You may need to raise a ticket with your admin to elevant the access to create cluster role  binding.
+** If you are an admin , then refere here https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control
+```
 
 
 [Go back to main page](../README.md)

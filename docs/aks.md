@@ -1,6 +1,7 @@
 # Pre-requsite  - format the file name
 [Go back to main page](../README.md)
 
+
 # Enable the aks module
 Step 1
 ```
@@ -34,6 +35,20 @@ $ az login
 * You may not need project_id, region and few otehr variabled if you are running locally
 
 * Do NOT use upper case for the value you are going to replace.
+```
+# Components created
+```
+* AKS with a default and application node
+* Azure CNI is enabled
+* Use ACR to store and pull the nginx plus ingress image
+* Public load balancer
+* Both node pool runs on internal subnet.
+```
+
+# Known challenges
+
+```
+* At least have Controbutor and Network Contributor role assigned before creating the cluster. Otherwise you would face issues in creating cluster in the private subnet.
 ```
 
 [Go back to main page](../README.md)

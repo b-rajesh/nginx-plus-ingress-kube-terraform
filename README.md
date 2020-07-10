@@ -121,16 +121,7 @@ Manually import JSON for NGINX Plus ingress controller - https://github.com/ngin
 # Three nodes(VM's) are created as worker node by default for a cluster. Be mindful about how many nodes you create , the config is part of `terraform.tfvars`
 
 # Grafana Dashboard is still NOT 100% working with all the metrics emitted by Kubernertes and NGiNX Plus Ingress Controller.
-```
-# Known challenges
-```
-You would be likely have an error while running terraform apply like
----
-Error: clusterrolebindings.rbac.authorization.k8s.io is forbidden: User "<user>@<email>.com" cannot create resource "clusterrolebindings" in API group "rbac.authorization.k8s.io" at the cluster scope: requires one of ["container.clusterRoleBindings.create"] permission(s).
----
-** If you are NOT an admin, You may need to raise a ticket with your admin to elevant the access to create cluster role  binding.
-** If you are an admin , then refere here https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control
-```
+
 
 # To run demo cost effectively, please destroy once you are done.
 Run `terraform destroy`. This will take approximately 15-20 minutes after your type `yes`
