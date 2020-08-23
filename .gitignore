@@ -1,0 +1,9 @@
+.terraform/
+.DS_Store
+license*
+nginx-repo.*
+terraform.tfstate
+terraform.tfstate.backup
+*.key
+*.crt
+kubernetes-ingress/
