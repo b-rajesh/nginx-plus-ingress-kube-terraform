@@ -9,23 +9,28 @@ resource "kubernetes_cluster_role" "nginx-plus-ingress-cluster-role" {
   }
   rule {
     api_groups = ["k8s.nginx.org"]
-    resources  = ["virtualservers", "virtualserverroutes", "globalconfigurations", "transportservers"]
+    resources  = ["virtualservers/status", "virtualserverroutes/status"]
+    verbs      = ["update"]
+  }
+  rule {
+    api_groups = ["k8s.nginx.org"]
+    resources  = ["virtualservers", "virtualserverroutes", "globalconfigurations", "transportservers", "policies"]
     verbs      = ["get", "list", "watch"]
   }
   rule {
-    api_groups = ["extensions"]
+    api_groups = ["networking.k8s.io"]
     resources  = ["ingresses/status"]
     verbs      = ["update"]
   }
   rule {
-    api_groups = ["extensions"]
+    api_groups = ["networking.k8s.io"]
     resources  = ["ingresses"]
     verbs      = ["get", "list", "watch"]
   }
   rule {
     api_groups = [""]
     resources  = ["events"]
-    verbs      = ["create", "patch"]
+    verbs      = ["create", "patch", "list"]
   }
   rule {
     api_groups = [""]
@@ -47,7 +52,7 @@ resource "kubernetes_cluster_role" "nginx-plus-ingress-cluster-role" {
     resources  = ["services", "endpoints"]
     verbs      = ["get", "list", "watch"]
   }
-  depends_on = [kubernetes_service_account.nginx-plus-ingress-sa]
+  depends_on = [kubernetes_service_account.nginx-plus-ingress-sa, null_resource.cluster]
 }
 
 resource "kubernetes_cluster_role_binding" "nginx-plus-ingress-cluster-role-binding" {
@@ -64,5 +69,5 @@ resource "kubernetes_cluster_role_binding" "nginx-plus-ingress-cluster-role-bind
     name      = kubernetes_service_account.nginx-plus-ingress-sa.metadata.0.name
     namespace = kubernetes_namespace.nginx-plus-ingress-ns.metadata[0].name
   }
-  depends_on = [kubernetes_cluster_role.nginx-plus-ingress-cluster-role]
+  depends_on = [kubernetes_cluster_role.nginx-plus-ingress-cluster-role, null_resource.cluster]
 }

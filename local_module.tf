@@ -14,6 +14,9 @@ module "api-deployment" {
   source = "./modules/apis"
 
   load_config_file       = true
+  tls_crt                   = "${file("default.crt")}"
+  tls_key                   = "${file("default.key")}"
+  image                     = "ingress/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
   host                   = ""
   token                  = ""
   cluster_ca_certificate = ""

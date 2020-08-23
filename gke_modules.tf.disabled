@@ -11,6 +11,9 @@ module "prometheus" {
 
 module "api-deployment" {
   source = "./modules/apis"
+  tls_crt                   = "${file("default.crt")}"
+  tls_key                   = "${file("default.key")}"
+  image                     = "ingress/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
 
   load_config_file       = false
   host                   = module.gke.primary_cluster_endpoint

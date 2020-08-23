@@ -9,6 +9,8 @@ spec:
     served: true
     storage: true
   scope: Namespaced
+  subresources:
+    status: {}
   names:
     kind: VirtualServer
     plural: virtualservers
@@ -16,6 +18,24 @@ spec:
     shortNames:
     - vs
   preserveUnknownFields: false
+  additionalPrinterColumns:
+  - name: State
+    type: string
+    description: Current state of the VirtualServer. If the resource has a valid status,
+      it means it has been validated and accepted by the Ingress Controller.
+    JSONPath: .status.state
+  - name: Host
+    type: string
+    JSONPath: .spec.host
+  - name: IP
+    type: string
+    JSONPath: .status.externalEndpoints[*].ip
+  - name: Ports
+    type: string
+    JSONPath: .status.externalEndpoints[*].ports
+  - name: Age
+    type: date
+    JSONPath: .metadata.creationTimestamp
   validation:
     openAPIV3Schema:
       description: VirtualServer defines the VirtualServer resource.
@@ -39,6 +59,21 @@ spec:
           properties:
             host:
               type: string
+            http-snippets:
+              type: string
+            ingressClassName:
+              type: string
+            policies:
+              type: array
+              items:
+                description: PolicyReference references a policy by name and an optional
+                  namespace.
+                type: object
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
             routes:
               type: array
               items:
@@ -51,6 +86,62 @@ spec:
                     properties:
                       pass:
                         type: string
+                      proxy:
+                        description: ActionProxy defines a proxy in an Action.
+                        type: object
+                        properties:
+                          requestHeaders:
+                            description: ProxyRequestHeaders defines the request headers
+                              manipulation in an ActionProxy.
+                            type: object
+                            properties:
+                              pass:
+                                type: boolean
+                              set:
+                                type: array
+                                items:
+                                  description: Header defines an HTTP Header.
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    value:
+                                      type: string
+                          responseHeaders:
+                            description: ProxyRequestHeaders defines the response
+                              headers manipulation in an ActionProxy.
+                            type: object
+                            properties:
+                              add:
+                                type: array
+                                items:
+                                  description: Header defines an HTTP Header with
+                                    an optional Always field to use with the add_header
+                                    NGINX directive.
+                                  type: object
+                                  properties:
+                                    always:
+                                      type: boolean
+                                    name:
+                                      type: string
+                                    value:
+                                      type: string
+                              hide:
+                                type: array
+                                items:
+                                  type: string
+                              ignore:
+                                type: array
+                                items:
+                                  type: string
+                              pass:
+                                type: array
+                                items:
+                                  type: string
+                          rewritePath:
+                            type: string
+                          upstream:
+                            type: string
                       redirect:
                         description: ActionRedirect defines a redirect in an Action.
                         type: object
@@ -108,6 +199,8 @@ spec:
                                     type: string
                             type:
                               type: string
+                  location-snippets:
+                    type: string
                   matches:
                     type: array
                     items:
@@ -120,6 +213,62 @@ spec:
                           properties:
                             pass:
                               type: string
+                            proxy:
+                              description: ActionProxy defines a proxy in an Action.
+                              type: object
+                              properties:
+                                requestHeaders:
+                                  description: ProxyRequestHeaders defines the request
+                                    headers manipulation in an ActionProxy.
+                                  type: object
+                                  properties:
+                                    pass:
+                                      type: boolean
+                                    set:
+                                      type: array
+                                      items:
+                                        description: Header defines an HTTP Header.
+                                        type: object
+                                        properties:
+                                          name:
+                                            type: string
+                                          value:
+                                            type: string
+                                responseHeaders:
+                                  description: ProxyRequestHeaders defines the response
+                                    headers manipulation in an ActionProxy.
+                                  type: object
+                                  properties:
+                                    add:
+                                      type: array
+                                      items:
+                                        description: Header defines an HTTP Header
+                                          with an optional Always field to use with
+                                          the add_header NGINX directive.
+                                        type: object
+                                        properties:
+                                          always:
+                                            type: boolean
+                                          name:
+                                            type: string
+                                          value:
+                                            type: string
+                                    hide:
+                                      type: array
+                                      items:
+                                        type: string
+                                    ignore:
+                                      type: array
+                                      items:
+                                        type: string
+                                    pass:
+                                      type: array
+                                      items:
+                                        type: string
+                                rewritePath:
+                                  type: string
+                                upstream:
+                                  type: string
                             redirect:
                               description: ActionRedirect defines a redirect in an
                                 Action.
@@ -167,6 +316,64 @@ spec:
                                 properties:
                                   pass:
                                     type: string
+                                  proxy:
+                                    description: ActionProxy defines a proxy in an
+                                      Action.
+                                    type: object
+                                    properties:
+                                      requestHeaders:
+                                        description: ProxyRequestHeaders defines the
+                                          request headers manipulation in an ActionProxy.
+                                        type: object
+                                        properties:
+                                          pass:
+                                            type: boolean
+                                          set:
+                                            type: array
+                                            items:
+                                              description: Header defines an HTTP
+                                                Header.
+                                              type: object
+                                              properties:
+                                                name:
+                                                  type: string
+                                                value:
+                                                  type: string
+                                      responseHeaders:
+                                        description: ProxyRequestHeaders defines the
+                                          response headers manipulation in an ActionProxy.
+                                        type: object
+                                        properties:
+                                          add:
+                                            type: array
+                                            items:
+                                              description: Header defines an HTTP
+                                                Header with an optional Always field
+                                                to use with the add_header NGINX directive.
+                                              type: object
+                                              properties:
+                                                always:
+                                                  type: boolean
+                                                name:
+                                                  type: string
+                                                value:
+                                                  type: string
+                                          hide:
+                                            type: array
+                                            items:
+                                              type: string
+                                          ignore:
+                                            type: array
+                                            items:
+                                              type: string
+                                          pass:
+                                            type: array
+                                            items:
+                                              type: string
+                                      rewritePath:
+                                        type: string
+                                      upstream:
+                                        type: string
                                   redirect:
                                     description: ActionRedirect defines a redirect
                                       in an Action.
@@ -191,6 +398,17 @@ spec:
                                 type: integer
                   path:
                     type: string
+                  policies:
+                    type: array
+                    items:
+                      description: PolicyReference references a policy by name and
+                        an optional namespace.
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
                   route:
                     type: string
                   splits:
@@ -205,6 +423,62 @@ spec:
                           properties:
                             pass:
                               type: string
+                            proxy:
+                              description: ActionProxy defines a proxy in an Action.
+                              type: object
+                              properties:
+                                requestHeaders:
+                                  description: ProxyRequestHeaders defines the request
+                                    headers manipulation in an ActionProxy.
+                                  type: object
+                                  properties:
+                                    pass:
+                                      type: boolean
+                                    set:
+                                      type: array
+                                      items:
+                                        description: Header defines an HTTP Header.
+                                        type: object
+                                        properties:
+                                          name:
+                                            type: string
+                                          value:
+                                            type: string
+                                responseHeaders:
+                                  description: ProxyRequestHeaders defines the response
+                                    headers manipulation in an ActionProxy.
+                                  type: object
+                                  properties:
+                                    add:
+                                      type: array
+                                      items:
+                                        description: Header defines an HTTP Header
+                                          with an optional Always field to use with
+                                          the add_header NGINX directive.
+                                        type: object
+                                        properties:
+                                          always:
+                                            type: boolean
+                                          name:
+                                            type: string
+                                          value:
+                                            type: string
+                                    hide:
+                                      type: array
+                                      items:
+                                        type: string
+                                    ignore:
+                                      type: array
+                                      items:
+                                        type: string
+                                    pass:
+                                      type: array
+                                      items:
+                                        type: string
+                                rewritePath:
+                                  type: string
+                                upstream:
+                                  type: string
                             redirect:
                               description: ActionRedirect defines a redirect in an
                                 Action.
@@ -226,6 +500,8 @@ spec:
                                   type: string
                         weight:
                           type: integer
+            server-snippets:
+              type: string
             tls:
               description: TLS defines TLS configuration for a VirtualServer.
               type: object
@@ -375,3 +651,25 @@ spec:
                     properties:
                       enable:
                         type: boolean
+        status:
+          description: VirtualServerStatus defines the status for the VirtualServer
+            resource.
+          type: object
+          properties:
+            externalEndpoints:
+              type: array
+              items:
+                description: ExternalEndpoint defines the IP and ports used to connect
+                  to this resource.
+                type: object
+                properties:
+                  ip:
+                    type: string
+                  ports:
+                    type: string
+            message:
+              type: string
+            reason:
+              type: string
+            state:
+              type: string

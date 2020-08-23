@@ -6,5 +6,5 @@ resource "null_resource" "cluster" {
   provisioner "local-exec" {
     command = "kubectl apply -f ${path.module}/crd/"
   }
-   depends_on = [kubernetes_config_map.nginx-ingress-config-map]
+   depends_on = [kubernetes_config_map.nginx-ingress-config-map, kubernetes_config_map.nginx_ingress_server_config_map]
 }

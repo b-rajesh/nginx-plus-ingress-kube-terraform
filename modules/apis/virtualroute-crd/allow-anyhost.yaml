@@ -1,0 +1,9 @@
+apiVersion: k8s.nginx.org/v1alpha1
+kind: Policy 
+metadata:
+  name: allow-anyhost
+  namespace: nginx-plus-ingress-ns
+spec:
+  accessControl:
+    allow:
+    - 0.0.0.0/0

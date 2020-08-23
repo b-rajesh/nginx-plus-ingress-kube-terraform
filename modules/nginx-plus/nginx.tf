@@ -100,12 +100,14 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
           }
           args = concat([
             "-nginx-plus",
-            "-nginx-configmaps=${kubernetes_namespace.nginx-plus-ingress-ns.metadata[0].name}/${kubernetes_config_map.nginx-ingress-config-map.metadata.0.name}",
+            "-nginx-configmaps=${kubernetes_namespace.nginx-plus-ingress-ns.metadata[0].name}/${kubernetes_config_map.nginx_ingress_server_config_map.metadata.0.name}",
             "-default-server-tls-secret=${kubernetes_namespace.nginx-plus-ingress-ns.metadata[0].name}/${kubernetes_secret.nginx-plus-ingress-default-secret.metadata.0.name}",
             "-health-status",
-            "-nginx-status-allow-cidrs=120.148.224.94",
+            "-nginx-status",
             "-nginx-status-port=8086",
             "-enable-prometheus-metrics",
+            "-enable-snippets",
+            "-ingress-class=edgeproxy",
             "-prometheus-metrics-listen-port=9500"
             //"-v=3" # Enables extensive logging. Useful for troubleshooting.
           ])

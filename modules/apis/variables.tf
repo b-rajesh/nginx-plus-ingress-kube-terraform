@@ -13,3 +13,6 @@ variable  cluster_ca_certificate {}
 variable load_config_file  {}
 variable  client_key  {}
 variable client_certificate {}
+variable tls_crt {}
+variable tls_key {}
+variable image {}
