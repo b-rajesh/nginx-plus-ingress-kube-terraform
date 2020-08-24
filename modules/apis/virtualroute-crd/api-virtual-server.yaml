@@ -35,9 +35,6 @@ spec:
   routes:
   - path: /weather
     location-snippets: |
-      # HTTP Method level authorization
-      limit_except GET { deny all;}
-      error_page 403 = @405;
       if ( $isAdmin = 0 ) {
         return 403; # Forbidden
       }
@@ -69,8 +66,17 @@ spec:
     client-max-body-size: 1m
   subroutes:
   - path: /weather
+    matches:
+    - conditions:
+      - variable: $request_method
+        value: GET
+      action:
+        pass: weather-service-upstream 
     action:
-      pass: weather-service-upstream 
+      return:
+        code: 405
+        type: application/json
+        body: '{\"status\":405,\"message\":\"Hiya,Method you requested is not allowed\"} \n'
 ---
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServerRoute
@@ -96,6 +102,16 @@ spec:
     client-max-body-size: 1m
   subroutes:
   - path: /helloworld
+    matches:
+    - conditions:
+      - variable: $request_method
+        value: GET
+      action:
+        pass: echo-service-upstream
     action:
-      pass: echo-service-upstream 
+      return:
+        code: 405
+        type: application/json
+        body: '{\"status\":405,\"message\":\"Hiya, Method you requested is not allowed\"} \n'
 ---
+# Supported NGINX variables: $args, $http2, $https, $remote_addr, $remote_port, $query_string, $request, $request_body, $request_uri, $request_method, $scheme
