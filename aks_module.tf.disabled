@@ -11,7 +11,11 @@ module "prometheus" {
 
 module "api-deployment" {
   source                 = "./modules/apis"
+
   depends_on_nginx_plus  = [module.nginx-plus-ingress-deployment.lb_ip, module.aks.host, module.aks.cluster_id, module.aks.cluster_node_pool_id]
+  tls_crt                   = "${file("default.crt")}"
+  tls_key                   = "${file("default.key")}"
+  image                     = "ingress/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
   load_config_file       = false
   host                   = module.aks.host
   token                  = ""

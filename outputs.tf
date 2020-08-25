@@ -1,14 +1,10 @@
-output "nginx_ingress_external_loadbalancer" {
-  description = "The external Url to access NGiNX Plus Ingress Controller"
-  value       = "http://${local.external_loadbalancer}:8080"
-}
 output "weather_api_url" {
-  description = "Curl command to access weather API"
-  value       = "curl --Header 'Host: localhost' http://${local.external_loadbalancer}:8080/weather?city=melbourne"
+  description = "HTTPie command to access weather API"
+  value       = "http  ${local.external_loadbalancer}:8080/weather?city=melbourne 'Host: localhost' 'Authorization: Bearer '"
 }
 output "helloworld_api_url" {
-  description = "Curl command to access helloworld API"
-  value       = "curl --Header 'Host: localhost' http://${local.external_loadbalancer}:8080/helloworld"
+  description = "HTTPie command to access helloworld API"
+  value       = "http  ${local.external_loadbalancer}:8080/helloworld 'Host: localhost' 'Authorization: Bearer '"
 }
 output "grafana_dashboar_url" {
   description = "URL for Grafana Dashboard "
