@@ -2,7 +2,7 @@
   Configure provider
  *****************************************/
 provider "kubernetes" {
-  load_config_file       = var.load_config_file
+  config_path    = "~/.kube/config"
   host                   = var.host
   token                  = var.token
   client_key             = var.client_key
@@ -50,10 +50,25 @@ resource "kubernetes_secret" "nginx-plus-ingress-default-secret" {
     "tls.crt" = var.tls_crt,
     "tls.key" = var.tls_key
   }
-  type       = "Opaque"
+  type       = "kubernetes.io/tls"
   depends_on = [var.depends_on_kube]
 }
-
+/*
+resource "kubernetes_secret" "nginx-mesh-registry-key" {
+  metadata {
+    name      = "nginx-mesh-registry-key"
+    namespace = kubernetes_namespace.nginx-plus-ingress-ns.metadata[0].name
+    annotations = {
+      "kubernetes.io/service-account.name" = kubernetes_service_account.nginx-plus-ingress-sa.metadata.0.name
+      "kubernetes.io/service-account.uid"  = kubernetes_service_account.nginx-plus-ingress-sa.metadata.0.uid
+    }
+  }
+  data = {
+    ".dockerconfigjson"= "<base64-encoded-key>",
+  }
+  type       = "kubernetes.io/dockerconfigjson"
+}
+*/
 resource "kubernetes_config_map" "nginx-ingress-config-map" {
   metadata {
     name      = "nginx-ingress-config-map"

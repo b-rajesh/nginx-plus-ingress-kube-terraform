@@ -11,7 +11,8 @@ variable "weather-api-image" {
 variable "echo-api-image" {
   description = "Enter your name of the weather api docker iamge from dockerhub.io"
 }
-
+variable "swapi-image" {
+}
 variable "gke_username" {
   description = "Enter gke username - usuall empty"
 }

@@ -11,8 +11,8 @@ module "prometheus" {
 
 module "api-deployment" {
   source = "./modules/apis"
-  tls_crt                   = "${file("default.crt")}"
-  tls_key                   = "${file("default.key")}"
+  tls_crt                   = file("default.crt")
+  tls_key                   = file("default.key")
   image                     = "ingress/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
 
   load_config_file       = false
@@ -23,6 +23,7 @@ module "api-deployment" {
   client_certificate     = ""
   weather-api-image      = var.weather-api-image
   echo-api-image         = var.echo-api-image
+  swapi-image            = var.swapi-image
   depends_on_nginx_plus  = [module.nginx-plus-ingress-deployment.lb_ip, module.gke.primary_endpoint, module.gke.node_pool, module.gke.endpoint]
 
 }
@@ -35,8 +36,8 @@ locals {
 module "nginx-plus-ingress-deployment" {
   source = "./modules/nginx-plus"
 
-  tls_crt                   = "${file("default.crt")}"
-  tls_key                   = "${file("default.key")}"
+  tls_crt                   = file("default.crt")
+  tls_key                   = file("default.key")
   name_of_ingress_container = var.name_of_ingress_container
   image                     = "${var.gke_container_registry_region}/${var.project_id}/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
 

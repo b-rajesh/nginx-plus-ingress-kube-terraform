@@ -44,11 +44,11 @@ resource "kubernetes_deployment" "grafana-deployment" {
           }
 
           resources {
-            limits {
+            limits = {
               cpu    = "1000m"
               memory = "2Gi"
             }
-            requests {
+            requests = {
               cpu    = "500m"
               memory = "1Gi"
             }

@@ -23,9 +23,9 @@ module "api-deployment" {
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
   client_certificate     = base64decode(module.aks.client_certificate)
 
-  weather-api-image = var.weather-api-image
-  echo-api-image    = var.echo-api-image
-
+  weather-api-image      = var.weather-api-image
+  echo-api-image         = var.echo-api-image
+  swapi-image            = var.swapi-image
 }
 
 locals {

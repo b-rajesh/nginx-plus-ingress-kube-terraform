@@ -14,7 +14,7 @@ resource "null_resource" "build-kic" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/kubernetes-ingress/ && make container DOCKERFILE=DockerfileForPlus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name}"
+    command = "cd ${path.module}/kubernetes-ingress/ && make container DOCKERFILE=DockerfileWithOpentracingForPlus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name}"
   }
   
   provisioner "local-exec" {

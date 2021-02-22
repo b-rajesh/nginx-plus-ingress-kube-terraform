@@ -8,6 +8,16 @@ resource "kubernetes_cluster_role" "nginx-plus-ingress-cluster-role" {
       } */
   }
   rule {
+    api_groups = ["cis.f5.com"]
+    resources  = ["ingresslinks"]
+    verbs      = ["get", "list", "watch"]
+  }
+  rule {
+    api_groups = ["networking.k8s.io"]
+    resources  = ["ingressclasses"]
+    verbs      = ["get"]
+  }
+  rule {
     api_groups = ["k8s.nginx.org"]
     resources  = ["virtualservers/status", "virtualserverroutes/status"]
     verbs      = ["update"]

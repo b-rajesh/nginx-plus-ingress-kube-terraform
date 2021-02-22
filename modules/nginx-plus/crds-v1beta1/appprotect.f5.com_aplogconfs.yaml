@@ -2,31 +2,27 @@ apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.2.5
+    controller-gen.kubebuilder.io/version: v0.4.0
   creationTimestamp: null
   name: aplogconfs.appprotect.f5.com
 spec:
-  preserveUnknownFields: false
   group: appprotect.f5.com
   names:
     kind: APLogConf
     listKind: APLogConfList
     plural: aplogconfs
     singular: aplogconf
+  preserveUnknownFields: false
   scope: Namespaced
   validation:
     openAPIV3Schema:
       description: APLogConf is the Schema for the APLogConfs API
       properties:
         apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
           type: string
         kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
           type: string
         metadata:
           type: object
@@ -37,10 +33,10 @@ spec:
               properties:
                 format:
                   enum:
-                  - splunk
-                  - arcsight
-                  - default
-                  - user-defined
+                    - splunk
+                    - arcsight
+                    - default
+                    - user-defined
                   type: string
                 format_string:
                   type: string
@@ -55,15 +51,15 @@ spec:
               properties:
                 request_type:
                   enum:
-                  - all
-                  - illegal
-                  - blocked
+                    - all
+                    - illegal
+                    - blocked
                   type: string
               type: object
           type: object
       type: object
   version: v1beta1
   versions:
-  - name: v1beta1
-    served: true
-    storage: true
+    - name: v1beta1
+      served: true
+      storage: true

@@ -1,46 +1,117 @@
 # This CRD support for Terraform is still in beta - https://www.hashicorp.com/blog/deploy-any-resource-with-the-new-kubernetes-provider-for-hashicorp-terraform/ - hence we still stick to YAML execution through kubectl
-
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServer
 metadata:
-  name: weather-api-vs
+  name: edgeproxy-ingress
   namespace: nginx-plus-ingress-ns
 spec:
   ingressClassName: edgeproxy
-  http-snippets: |
-    limit_req_zone $binary_remote_addr zone=ip_address:10m rate=3r/m;
-    gunzip on; # Decompress IdP responses if necessary
-    auth_jwt_claim_set $idp_issuer          iss;
-    auth_jwt_claim_set $customer_id         sub;
-    auth_jwt_claim_set $audience         aud;
-    auth_jwt_claim_set $weather_role        permissions;
-    proxy_cache_path /var/cache/nginx/jwk levels=1 keys_zone=jwk:1m max_size=10m;
-    map $weather_role $isAdmin {
-        "admin" 1;
-        default 0;
+  host: api.powerhour.com
+  server-snippets: |
+    default_type            application/json; # If no content-type then assume JSON
+    auth_jwt "authz";
+    auth_jwt_key_request /_jwks_uri; # Keys will be fetched by subrequest
+    location = /_jwks_uri {
+      internal;
+      resolver 8.8.8.8 valid=300s status_zone=idp-server; # For DNS lookup of IdP endpoints; status_zone to collect response statuses, error and other metrics about resolver activity
+      proxy_method GET;
+      proxy_cache  jwk; # Cache public key responses
+      proxy_cache_valid 200 12h;                    # How long to consider keys "fresh"
+      proxy_cache_use_stale error timeout updating; # Use old JWK Set if cannot reach IdP
+      proxy_ssl_server_name on;                     # For SNI to the IdP
+      proxy_set_header Content-Length "";           # ''
+      proxy_ignore_headers Cache-Control Expires Set-Cookie; # Does not influence caching
+      proxy_pass   https://dev-745930.oktapreview.com/oauth2/aust74u504jhAxmi90h7/v1/keys; # OIDC JWKS uri to obtain public keys
     }
-    # Verify the aud claim whether the token is issued to the client for differnt resource access.
-    map $audience $isAudienceAllowed { 
-        "https://rajeshbavan.ddns.net/v1/partner" 1;
-        default                    0;
-    }
-    map $idp_issuer $isValidIssuer {
-        "https://brajesh.au.auth0.com/" 1;
-        default                                                          0;
-    }
-  host: localhost
+    
+    error_page 400 = @400;
+    location @400 { return 400 '{"status":400,"message":"Bad request"}\n'; }
+
+    error_page 401 = @401;
+    location @401 { return 401 '{"status":401,"message":"Unauthorized"}\n'; }
+
+    error_page 403 = @403;
+    location @403 { return 403 '{"status":403,"message":"Forbidden - You called invalid HTTP method or you dont have appropriate access rights"}\n'; }
+
+    error_page 404 = @404;
+    location @404 { return 404 '{"status":404,"message":"Resource you requested not found"}\n'; }
+
+    error_page 405 = @405;
+    location @405 { return 405 '{"status":405,"message":"Method you requested is not allowed"}\n'; }
+
+    error_page 413 = @413;
+    location @413 { return 413 '{"status":413,"message":"Payload too large to process"}\n'; }
+
+    error_page 414 = @414;
+    location @414 { return 414 '{"status":414,"message":"Request URI too large"}\n'; }
+
+    error_page 415 = @415;
+    location @415 { return 415 '{"status":415,"message":"Unsupported media type"}\n'; }
+
+    error_page 426 = @426;
+    location @426 { return 426 '{"status":426,"message":"HTTP request was sent to HTTPS port"}\n'; }
+
+    error_page 429 = @429;
+    location @429 { return 429 '{"status":429,"message":"API rate limit exceeded"}\n'; }
+
+    add_header Pragma public always;
+    add_header Cache-Control "public, must-revalidate, proxy-revalidate" always;
+    add_header X-Who-did-this Rajesh always;
+    add_header server "" always;
+    #add_header Access-Control-Allow-Origin '*' always;
+    add_header x-rate-limit $limit_req_status;
+    add_header x-rate-limit-remaining $limit_conn_status;
+    add_header x-upstream_connect_time $upstream_connect_time always;
+    add_header x-original-request-ip $realip_remote_addr  always;
+    add_header x-remote_addr $remote_addr;
+    add_header x-original-request-uri $request_uri  always;
+    add_header x-total-latency $request_time;
+    add_header x-upstream_latency $upstream_response_time;
+    add_header x-forwarded-for $proxy_add_x_forwarded_for;
+    add_header x-forwarded-proto $scheme;
+    add_header x-upstream-addr $upstream_addr always;
+    add_header x-limit_req_status $limit_req_status;
+    add_header x-upstream-status $upstream_status;
+    add_header x-correlation-id $request_id  always;
+
+    # To hide nginx version number in error pages and Server header
+    #server_tokens off;
+    # ref: https://developer.mozilla.org/en-US/docs/Security/HTTP_Strict_Transport_Security
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+    add_header X-Frame-Options SAMEORIGIN always;
+    # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+    add_header X-Content-Type-Options nosniff always;
+    # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+    add_header X-Xss-Protection "1; mode=block" always;
+
   policies:
     - name: allow-anyhost
       namespace: nginx-plus-ingress-ns
   routes:
   - path: /weather
-    location-snippets: |
-      if ( $isAdmin = 0 ) {
-        return 403; # Forbidden
-      }
     route: microservice-namespace/weather-service-vsr
   - path: /helloworld
     route: microservice-namespace/echo-service-vsr
+  - path: /
+    location-snippets: 
+      if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+        add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,Origin,DNT,X-Chisel-Proxied-Url,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range';
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
+      }
+      if ( $idp_issuer = 0) { 
+        return 403; 
+      }
+      if ( $isAudienceAllowed = 0) { 
+        return 403; 
+      }
+    
+    route: bookinfo/swapi-service-vsr
 ---
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServerRoute
@@ -48,7 +119,7 @@ metadata:
   name: weather-service-vsr
   namespace: microservice-namespace
 spec:
-  host: localhost
+  host: api.powerhour.com
   upstreams:
   - name: weather-service-upstream 
     service: weather-service
@@ -84,7 +155,7 @@ metadata:
   name: echo-service-vsr
   namespace: microservice-namespace
 spec:
-  host: localhost
+  host: api.powerhour.com
   upstreams:
   - name: echo-service-upstream 
     service: echo-service
@@ -114,4 +185,30 @@ spec:
         type: application/json
         body: '{\"status\":405,\"message\":\"Hiya, Method you requested is not allowed\"} \n'
 ---
-# Supported NGINX variables: $args, $http2, $https, $remote_addr, $remote_port, $query_string, $request, $request_body, $request_uri, $request_method, $scheme
+apiVersion: k8s.nginx.org/v1
+kind: VirtualServerRoute
+metadata:
+  name: swapi-service-vsr
+  namespace: microservice-namespace
+spec:
+  host: api.powerhour.com
+  upstreams:
+  - name: swapi-service-upstream 
+    service: productpage
+    port: 9080
+    lb-method: round_robin
+    max-fails: 1
+    max-conns: 32
+    keepalive: 32
+    connect-timeout: 30s
+    read-timeout: 30s
+    send-timeout: 30s
+    next-upstream: "error timeout non_idempotent"
+    next-upstream-timeout: 5s
+    next-upstream-tries: 10
+    client-max-body-size: 1m
+  subroutes:
+  - path: /
+    action:
+      pass: swapi-service-upstream
+---

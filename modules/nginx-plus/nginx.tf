@@ -13,7 +13,7 @@ resource "kubernetes_service" "nginx-ingress-service" {
     port {
       name        = "http"
       protocol    = "TCP"
-      port        = 8080
+      port        = 80
       target_port = 80
     }
     port {
@@ -63,6 +63,14 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
           name = kubernetes_secret.nginx-plus-ingress-default-secret.metadata.0.name
         }
         service_account_name = kubernetes_service_account.nginx-plus-ingress-sa.metadata[0].name
+        /*
+        volume {
+          name = "spire-agent-socket"
+          host_path {
+            path = "/run/spire/sockets"
+            type = "DirectoryOrCreate"
+          }
+        }*/
         container {
           image = var.image 
           name  = var.name_of_ingress_container
@@ -77,7 +85,11 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
           }
           port {
             container_port = 443
-          }
+          } /*
+          volume_mount {
+            name       = "spire-agent-socket"
+            mount_path = "/run/spire/sockets"
+          } */
           security_context {
             allow_privilege_escalation = true
             run_as_user                = 101
@@ -108,6 +120,7 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
             "-enable-prometheus-metrics",
             "-enable-snippets",
             "-ingress-class=edgeproxy",
+            //"-spire-agent-address=/run/spire/sockets/agent.sock", # enable mTLS for NSM
             "-prometheus-metrics-listen-port=9500"
             //"-v=3" # Enables extensive logging. Useful for troubleshooting.
           ])

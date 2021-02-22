@@ -4,7 +4,7 @@ resource "kubernetes_cluster_role" "nginx-plus-app-protect-cluster-role" {
   }
   rule {
     api_groups = ["appprotect.f5.com"]
-    resources  = ["appolicies", "aplogconfs"]
+    resources  = ["appolicies", "aplogconfs", "apusersigs"]
     verbs      = ["get", "list", "watch"]
   }
   depends_on = [kubernetes_service_account.nginx-plus-ingress-sa]
