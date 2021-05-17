@@ -1,7 +1,7 @@
-variable project_id {}
-variable region {}
-variable name_of_ingress_container {}
-variable gke_kubernetes_version {
+variable "project_id" {}
+variable "region" {}
+variable "name_of_ingress_container" {}
+variable "gke_kubernetes_version" {
   description = "Enter the GKE supported kubernetes version : Run this to find out  gcloud container get-server-config --zone australia-southeast1 <-- Only specify major & minor version as shown here :::: eg 16.9."
 }
 
@@ -59,7 +59,7 @@ variable "subnetwork_cidr" {
 variable "gke_cluster_name" {
   description = "Enter unique gke cluster name eg. <yourname>-nplus-cluster - keep it lower case"
 }
-variable gke_container_registry_region {
+variable "gke_container_registry_region" {
   description = "Enter the region where you want your image to be uploaded eg asia.gcr.io or eu.gcr.io or us.gcr.io"
 }
 ###########################################################################################################

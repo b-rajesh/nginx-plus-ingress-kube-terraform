@@ -3,6 +3,7 @@ variable tls_crt {}
 variable tls_key {}
 variable image {}
 variable "name_of_ingress_container" {}
+variable "ingress_conroller_version" {}
 
 variable load_config_file  {}
 variable  host {}

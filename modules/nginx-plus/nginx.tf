@@ -120,6 +120,7 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
             "-enable-prometheus-metrics",
             "-enable-snippets",
             "-ingress-class=edgeproxy",
+            //"-enable-app-protect",
             //"-spire-agent-address=/run/spire/sockets/agent.sock", # enable mTLS for NSM
             "-prometheus-metrics-listen-port=9500"
             //"-v=3" # Enables extensive logging. Useful for troubleshooting.
@@ -129,7 +130,7 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
       }
     }
   }
-  depends_on = [kubernetes_namespace.nginx-plus-ingress-ns, kubernetes_cluster_role_binding.nginx-plus-ingress-cluster-role-binding]
+    depends_on = [kubernetes_namespace.nginx-plus-ingress-ns, kubernetes_cluster_role_binding.nginx-plus-ingress-cluster-role-binding]
 }
 
 /*

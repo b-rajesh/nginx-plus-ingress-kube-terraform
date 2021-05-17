@@ -5,7 +5,6 @@ metadata:
   name: edgeproxy-ingress
   namespace: nginx-plus-ingress-ns
 spec:
-  ingressClassName: edgeproxy
   host: api.powerhour.com
   server-snippets: |
     default_type            application/json; # If no content-type then assume JSON

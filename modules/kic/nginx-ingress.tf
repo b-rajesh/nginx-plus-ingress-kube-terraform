@@ -14,9 +14,9 @@ resource "null_resource" "build-kic" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/kubernetes-ingress/ && make container DOCKERFILE=DockerfileWithOpentracingForPlus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name}"
+    command = "cd ${path.module}/kubernetes-ingress/ && make debian-image-opentracing-plus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name} TARGET=container"
   }
-  
+
   provisioner "local-exec" {
     command = "rm -rf ${path.module}/kubernetes-ingress"
   }

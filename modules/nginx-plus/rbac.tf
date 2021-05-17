@@ -19,7 +19,7 @@ resource "kubernetes_cluster_role" "nginx-plus-ingress-cluster-role" {
   }
   rule {
     api_groups = ["k8s.nginx.org"]
-    resources  = ["virtualservers/status", "virtualserverroutes/status"]
+    resources  = ["virtualservers/status", "virtualserverroutes/status","policies/status","transportservers/status"]
     verbs      = ["update"]
   }
   rule {
