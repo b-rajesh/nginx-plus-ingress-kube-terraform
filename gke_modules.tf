@@ -39,6 +39,7 @@ module "nginx-plus-ingress-deployment" {
   tls_crt                   = file("default.crt")
   tls_key                   = file("default.key")
   name_of_ingress_container = var.name_of_ingress_container
+  ingress_conroller_version = var.ingress_conroller_version
   image                     = "${var.gke_container_registry_region}/${var.project_id}/${var.ingress_controller_image_name}:${var.ingress_conroller_version}"
 
   load_config_file       = false

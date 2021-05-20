@@ -5,7 +5,11 @@ metadata:
   name: edgeproxy-ingress
   namespace: nginx-plus-ingress-ns
 spec:
-  host: api.powerhour.com
+  host: apidays.india.in
+  policies:
+    - name: allow-anyhost
+    - name: rate-limit-policy
+    - name: waf-http-compliance-waf
   server-snippets: |
     default_type            application/json; # If no content-type then assume JSON
     auth_jwt "authz";
@@ -14,7 +18,7 @@ spec:
       internal;
       resolver 8.8.8.8 valid=300s status_zone=idp-server; # For DNS lookup of IdP endpoints; status_zone to collect response statuses, error and other metrics about resolver activity
       proxy_method GET;
-      proxy_cache  jwk; # Cache public key responses
+      proxy_cache  rajjwk; # Cache public key responses
       proxy_cache_valid 200 12h;                    # How long to consider keys "fresh"
       proxy_cache_use_stale error timeout updating; # Use old JWK Set if cannot reach IdP
       proxy_ssl_server_name on;                     # For SNI to the IdP
@@ -83,14 +87,18 @@ spec:
     add_header X-Content-Type-Options nosniff always;
     # ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
     add_header X-Xss-Protection "1; mode=block" always;
-
-  policies:
-    - name: allow-anyhost
-      namespace: nginx-plus-ingress-ns
   routes:
   - path: /weather
+    location-snippets:
+      if ( $isAdmin = 0) { 
+      return 403; 
+      }
     route: microservice-namespace/weather-service-vsr
   - path: /helloworld
+    location-snippets:
+      if ( $isAdmin = 0) { 
+        return 403; 
+      }
     route: microservice-namespace/echo-service-vsr
   - path: /
     location-snippets: 
@@ -110,7 +118,7 @@ spec:
         return 403; 
       }
     
-    route: bookinfo/swapi-service-vsr
+    route: microservice-namespace/swapi-service-vsr
 ---
 apiVersion: k8s.nginx.org/v1
 kind: VirtualServerRoute
@@ -118,7 +126,7 @@ metadata:
   name: weather-service-vsr
   namespace: microservice-namespace
 spec:
-  host: api.powerhour.com
+  host: apidays.india.in
   upstreams:
   - name: weather-service-upstream 
     service: weather-service
@@ -154,7 +162,7 @@ metadata:
   name: echo-service-vsr
   namespace: microservice-namespace
 spec:
-  host: api.powerhour.com
+  host: apidays.india.in
   upstreams:
   - name: echo-service-upstream 
     service: echo-service
@@ -190,11 +198,11 @@ metadata:
   name: swapi-service-vsr
   namespace: microservice-namespace
 spec:
-  host: api.powerhour.com
+  host: apidays.india.in
   upstreams:
   - name: swapi-service-upstream 
-    service: productpage
-    port: 9080
+    service: swapi-service
+    port: 3000
     lb-method: round_robin
     max-fails: 1
     max-conns: 32

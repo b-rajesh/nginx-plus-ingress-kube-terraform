@@ -120,7 +120,8 @@ resource "kubernetes_daemonset" "nginx-ingress-deployment" {
             "-enable-prometheus-metrics",
             "-enable-snippets",
             "-ingress-class=edgeproxy",
-            //"-enable-app-protect",
+            "-enable-app-protect",
+            "-enable-preview-policies",
             //"-spire-agent-address=/run/spire/sockets/agent.sock", # enable mTLS for NSM
             "-prometheus-metrics-listen-port=9500"
             //"-v=3" # Enables extensive logging. Useful for troubleshooting.

@@ -84,17 +84,17 @@ Apply complete! Resources: 38 added, 0 changed, 0 destroyed.
 Outputs:
 
 grafana_dashboar_url = http://{external-ip-address}:3000
-helloworld_api_url = curl --Header 'Host: api.powerhour.com' http://{external-ip-address}:8080/helloworld
+helloworld_api_url = curl --Header 'Host: apidays.india.in' http://{external-ip-address}:8080/helloworld
 nginx_ingress_external_loadbalancer = http://{external-ip-address}:8080
-weather_api_url = curl --Header 'Host: api.powerhour.com' http://{external-ip-address}:8080/weather?city=melbourne
+weather_api_url = curl --Header 'Host: apidays.india.in' http://{external-ip-address}:8080/weather?city=melbourne
 
 ```
 ## Accessing the apps
 ```shell
-$ curl --Header 'Host: api.powerhour.com' http://{external-ip-address}:8080/weather?city=melbourne
+$ curl --Header 'Host: apidays.india.in' http://{external-ip-address}:8080/weather?city=melbourne
 ```
 ```shell
-curl --Header 'Host: api.powerhour.com' http://{external-ip-address}:8080/helloworld
+curl --Header 'Host: apidays.india.in' http://{external-ip-address}:8080/helloworld
 ```
 Access Grafana Dashboard
 ```
@@ -110,7 +110,7 @@ Manually import JSON for NGINX Plus ingress controller - https://github.com/ngin
 ```
 ## Things to know
 ```
-# If you are running locally, you may not get the {external-ip-address} so feel free to add 'api.powerhour.com'
+# If you are running locally, you may not get the {external-ip-address} so feel free to add 'apidays.india.in'
 
 # Successful terraform apply would update your ~/.kube/config with the cluster it has created and set it as current context. This was necessary as Terraform wasn't supporting CRD creation using its resources. so kubectl is being used create CRD
 

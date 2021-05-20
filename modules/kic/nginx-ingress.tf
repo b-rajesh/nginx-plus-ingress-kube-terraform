@@ -14,7 +14,7 @@ resource "null_resource" "build-kic" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/kubernetes-ingress/ && make debian-image-opentracing-plus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name} TARGET=container"
+    command = "cd ${path.module}/kubernetes-ingress/ && make debian-image-nap-plus PREFIX=${var.ingress_controller_prefix}/${var.ingress_controller_image_name} TARGET=container"
   }
 
   provisioner "local-exec" {
